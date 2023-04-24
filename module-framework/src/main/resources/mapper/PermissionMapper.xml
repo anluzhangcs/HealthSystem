@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.graduate.mapper.PermissionMapper">
+
+    <select id="getPermissionList" resultType="org.graduate.domain.entity.Permission">
+        SELECT t_permission.*
+        FROM t_permission,
+             t_role_permission
+        WHERE t_role_permission.role_Id = #{roleId}
+          AND t_role_permission.permission_Id = t_permission.id
+        ORDER BY t_permission.order_num
+    </select>
+
+</mapper>

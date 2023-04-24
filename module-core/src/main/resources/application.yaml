@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/nursinghome?characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: "t_"
+      id-type: auto #主键设置为自增策略，要求数据库必须设置为自增，否则无效
+      logic-delete-field: delFlag
+      logic-delete-value: 1 #delFlag为1，表示逻辑上已删除
+      logic-not-delete-value: 0 #delFlag为0，表示逻辑上未删除，SQL语句会拼接del==0
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
