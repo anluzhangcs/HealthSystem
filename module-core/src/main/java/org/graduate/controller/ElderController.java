@@ -7,6 +7,8 @@ import org.graduate.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * @author: Zhanghao
  * @date: 2023/4/18-16:02
@@ -26,7 +28,7 @@ public class ElderController {
     }
 
     @PostMapping("/add")
-    public ResponseResult addElder(@RequestBody Elder elder) {
+    public ResponseResult addElder(@RequestBody @Valid Elder elder) {
         return elderService.addElder(elder);
     }
 
