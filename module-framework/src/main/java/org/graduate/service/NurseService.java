@@ -20,5 +20,7 @@ public interface NurseService extends IService<Nurse> {
     ResponseResult editNurse(Nurse nurse);
 
     ResponseResult deleteNurse(Long id);
+
+    ResponseResult getAllNurses() throws Exception;
 }
 

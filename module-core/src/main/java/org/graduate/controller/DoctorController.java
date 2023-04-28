@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * @author: Zhanghao
  * @date: 2023/4/18-16:02
- * @Description 
+ * @Description
  */
 
 @RestController
@@ -38,5 +38,10 @@ public class DoctorController {
     @DeleteMapping("/delete/{id}")
     public ResponseResult deleteDoctor(@PathVariable Long id) {
         return doctorService.deleteDoctor(id);
+    }
+
+    @GetMapping("/all")
+    public ResponseResult getAllDoctors() throws Exception {
+        return doctorService.getAllDoctors();
     }
 }

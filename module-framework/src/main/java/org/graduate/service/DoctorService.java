@@ -20,5 +20,7 @@ public interface DoctorService extends IService<Doctor> {
     ResponseResult editDoctor(Doctor doctor);
 
     ResponseResult deleteDoctor(Long id);
+
+    ResponseResult getAllDoctors() throws Exception;
 }
 

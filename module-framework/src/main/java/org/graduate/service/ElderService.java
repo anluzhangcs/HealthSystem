@@ -20,5 +20,7 @@ public interface ElderService extends IService<Elder> {
     ResponseResult editElder(Elder elder);
 
     ResponseResult deleteElder(Long id);
+
+    ResponseResult getElderById(Long id);
 }
 

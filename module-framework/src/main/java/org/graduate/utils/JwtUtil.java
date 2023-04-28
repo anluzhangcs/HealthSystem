@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Data;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -14,10 +15,11 @@ import java.util.Objects;
  * @date: 2023/4/10-13:18
  * @Description JWT工具类
  */
+@Data
 public class JwtUtil {
 
     //常量
-    public static final long EXPIRE = 1000 * 60 * 30; //token过期时间
+    public static final long EXPIRE = 1000 * 60 * 60 * 24; //token过期时间
     public static final String APP_SECRET = "ukc8BDbRigUDaY6pZFfWus2jZWLPHO"; //秘钥
 
     //生成token字符串的方法

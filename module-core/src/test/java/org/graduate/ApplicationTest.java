@@ -1,6 +1,8 @@
 package org.graduate;
 
 import com.alibaba.fastjson.JSON;
+import org.graduate.domain.entity.Demand;
+import org.graduate.mapper.DemandMapper;
 import org.graduate.mapper.RoleMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,15 @@ public class ApplicationTest {
 
     @Autowired
     private RoleMapper roleMapper;
+
+    @Autowired
+    private DemandMapper demandMapper;
+
+    @Test
+    public void testUUID() {
+        Demand demand = new Demand();
+        demandMapper.insert(demand);
+    }
 
     @Test
     public void testPasswordEncoder() {

@@ -39,4 +39,9 @@ public class ElderController {
     public ResponseResult deleteElder(@PathVariable Long id) {
         return elderService.deleteElder(id);
     }
+
+    @GetMapping("/find")
+    public ResponseResult getElderById(Long id) {
+        return elderService.getElderById(id);
+    }
 }

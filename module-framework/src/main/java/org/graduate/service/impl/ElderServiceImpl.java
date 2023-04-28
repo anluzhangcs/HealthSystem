@@ -27,6 +27,18 @@ public class ElderServiceImpl extends ServiceImpl<ElderMapper, Elder> implements
     private ElderMapper elderMapper;
 
     /**
+     * 根据id查找老人
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public ResponseResult getElderById(Long id) {
+        Elder elder = elderMapper.selectById(id);
+        return ResponseResult.ok(elder);
+    }
+
+    /**
      * 删除
      *
      * @param id

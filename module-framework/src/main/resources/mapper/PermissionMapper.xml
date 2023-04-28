@@ -5,7 +5,7 @@
 <mapper namespace="org.graduate.mapper.PermissionMapper">
 
     <select id="getPermissionList" resultType="org.graduate.domain.entity.Permission">
-        SELECT t_permission.*
+        SELECT DISTINCT t_permission.*
         FROM t_permission,
              t_role_permission
         WHERE t_role_permission.role_Id = #{roleId}

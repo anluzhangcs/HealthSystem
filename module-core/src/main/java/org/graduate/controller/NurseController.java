@@ -39,4 +39,9 @@ public class NurseController {
     public ResponseResult deleteNurse(@PathVariable Long id) {
         return nurseService.deleteNurse(id);
     }
+
+    @GetMapping("/all")
+    public ResponseResult getAllNurses() throws Exception {
+        return nurseService.getAllNurses();
+    }
 }

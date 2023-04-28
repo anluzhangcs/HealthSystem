@@ -6,12 +6,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.graduate.domain.SearchModel;
 import org.graduate.domain.entity.Doctor;
+import org.graduate.domain.vo.DoctorVo;
 import org.graduate.mapper.DoctorMapper;
 import org.graduate.service.DoctorService;
+import org.graduate.utils.BeanCopyUtil;
 import org.graduate.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -88,5 +92,18 @@ public class DoctorServiceImpl extends ServiceImpl<DoctorMapper, Doctor> impleme
         doctorMapper.deleteById(id);
         return ResponseResult.ok().setMessage("删除成功");
     }
+
+    /**
+     * 获取所有医生
+     *
+     * @return
+     */
+    @Override
+    public ResponseResult getAllDoctors() throws Exception {
+        List<Doctor> doctors = doctorMapper.selectList(null);
+        Collection<DoctorVo> doctorVos = BeanCopyUtil.copyBeanList(doctors, DoctorVo.class);
+        return ResponseResult.ok(doctorVos);
+    }
+
 }
 
