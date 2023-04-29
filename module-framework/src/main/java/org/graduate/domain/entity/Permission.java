@@ -42,7 +42,7 @@ public class Permission {
     //路由名称
     private String routerName;
     //是否删除(0-未删除，1-已删除)
-    private Integer delLag;
+    private Integer delFlag;
 
     @TableField(exist = false)
     private List<Permission> children;

@@ -24,5 +24,9 @@ public interface DemandService extends IService<Demand> {
     ResponseResult getDemandLimit();
 
     ResponseResult getDemandList(SearchModel model);
+
+    ResponseResult deleteDemand(String id);
+
+    ResponseResult editDemand(Demand demand);
 }
 

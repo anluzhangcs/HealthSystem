@@ -8,14 +8,15 @@ import org.graduate.domain.SearchModel;
 import org.graduate.domain.entity.Demand;
 import org.graduate.domain.entity.Elder;
 import org.graduate.mapper.DemandMapper;
+import org.graduate.mapper.DoctorMapper;
 import org.graduate.mapper.ElderMapper;
+import org.graduate.mapper.NurseMapper;
 import org.graduate.service.DemandService;
 import org.graduate.utils.ResponseResult;
 import org.graduate.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,6 +35,12 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
     @Autowired
     private ElderMapper elderMapper;
 
+    @Autowired
+    private NurseMapper nurseMapper;
+
+    @Autowired
+    private DoctorMapper doctorMapper;
+
     /**
      * 提交请求
      *
@@ -46,12 +53,23 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
         String username = SecurityUtils.getLoginUser().getUsername();
         Elder elder = elderMapper.selectById(Long.valueOf(username));
 
-        //2.注入数据
-        demand.setStatus(0);
+        //2.获取staff姓名
+        Integer target = demand.getTarget();
+        Long staffId = demand.getStaffId();
+        String name;
+        if (target == 1) { //为护工
+            name = nurseMapper.selectById(staffId).getName();
+        } else {
+            name = doctorMapper.selectById(staffId).getName();
+        }
+        demand.setStaffName(name);
+
+        //3.注入elder
         if (elder != null) {
             demand.setElderId(elder.getId());
             demand.setElderName(elder.getName());
         }
+
         demandMapper.insert(demand);
         return ResponseResult.ok().setMessage("提交成功");
     }
@@ -79,7 +97,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
             queryWrapper.like(Demand::getDetail, name);
         }
         if (!username.equals("0000000")) { //管理员展示所有
-            queryWrapper.eq(Demand::getValue, Long.valueOf(username));
+            queryWrapper.eq(Demand::getStaffId, Long.valueOf(username));
         }
 
         //4.查询
@@ -125,13 +143,15 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
      */
     @Override
     public ResponseResult getDemandLimit() {
+        //获取当前elder的id
         String username = SecurityUtils.getLoginUser().getUsername();
         LambdaQueryWrapper<Demand> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Demand::getElderId, Long.valueOf(username));
+        queryWrapper.in(Demand::getStatus, 1, 2);
         queryWrapper.orderByDesc(Demand::getCreateTime);
-        queryWrapper.last("limit 2");
-        List<Demand> demands = demandMapper.selectList(queryWrapper);
-        return ResponseResult.ok(demands);
+        queryWrapper.last("limit 1");
+        Demand demand = demandMapper.selectOne(queryWrapper);
+        return ResponseResult.ok(demand);
     }
 
     /**
@@ -154,15 +174,39 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
         IPage<Demand> page = new Page<>(currentPage, pageSize);
         LambdaQueryWrapper<Demand> queryWrapper = new LambdaQueryWrapper<>();
         if (name != "" && Objects.nonNull(name)) {
-            queryWrapper.like(Demand::getDetail, name);
+            queryWrapper.like(Demand::getElderName, name);
         }
-        if (!username.equals("0000000")) { //管理员展示所有
-            queryWrapper.eq(Demand::getElderId, Long.valueOf(username));
-        }
+        queryWrapper.eq(Demand::getElderId, Long.valueOf(username));
+        queryWrapper.orderByAsc(Demand::getCreateTime);
+
 
         //4.查询
         demandMapper.selectPage(page, queryWrapper);
         return ResponseResult.ok(page);
+    }
+
+    /**
+     * 删除
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public ResponseResult deleteDemand(String id) {
+        removeById(id);
+        return ResponseResult.ok().setMessage("删除成功");
+    }
+
+    /**
+     * 更新
+     *
+     * @param demand
+     * @return
+     */
+    @Override
+    public ResponseResult editDemand(Demand demand) {
+        demandMapper.updateById(demand);
+        return ResponseResult.ok().setMessage("更新成功");
     }
 }
 

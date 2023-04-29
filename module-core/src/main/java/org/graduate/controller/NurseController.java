@@ -5,6 +5,7 @@ import org.graduate.domain.entity.Nurse;
 import org.graduate.service.NurseService;
 import org.graduate.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -21,26 +22,31 @@ public class NurseController {
     private NurseService nurseService;
 
     @GetMapping("/list")
+    @PreAuthorize("hasAuthority('nurse:query')")
     public ResponseResult getNurseList(SearchModel model) throws Exception {
         return nurseService.getNurseList(model);
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('nurse:add')")
     public ResponseResult addNurse(@RequestBody Nurse nurse) {
         return nurseService.addNurse(nurse);
     }
 
     @PutMapping("/edit")
+    @PreAuthorize("hasAuthority('nurse:edit')")
     public ResponseResult editNurse(@RequestBody Nurse nurse) {
         return nurseService.editNurse(nurse);
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('nurse:delete')")
     public ResponseResult deleteNurse(@PathVariable Long id) {
         return nurseService.deleteNurse(id);
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('elder:demand')")
     public ResponseResult getAllNurses() throws Exception {
         return nurseService.getAllNurses();
     }

@@ -1,6 +1,7 @@
 package org.graduate;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.graduate.domain.entity.Demand;
 import org.graduate.mapper.DemandMapper;
 import org.graduate.mapper.RoleMapper;
@@ -26,6 +27,13 @@ public class ApplicationTest {
 
     @Autowired
     private DemandMapper demandMapper;
+
+    @Test
+    public void testDemanDelete() {
+        LambdaQueryWrapper<Demand> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Demand::getId, "1651092298956288001");
+        demandMapper.delete(wrapper);
+    }
 
     @Test
     public void testUUID() {

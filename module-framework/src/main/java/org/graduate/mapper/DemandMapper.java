@@ -10,6 +10,5 @@ import org.graduate.domain.entity.Demand;
  * @since 2023-04-25 22:53:26
  */
 public interface DemandMapper extends BaseMapper<Demand> {
-
 }
 
