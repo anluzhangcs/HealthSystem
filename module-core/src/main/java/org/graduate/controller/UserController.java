@@ -1,5 +1,6 @@
 package org.graduate.controller;
 
+import org.graduate.domain.PwdInfo;
 import org.graduate.domain.entity.User;
 import org.graduate.service.UserService;
 import org.graduate.utils.ResponseResult;
@@ -47,5 +48,10 @@ public class UserController {
     @PutMapping("/edit/profile")
     public ResponseResult editProfile(@RequestBody User user) {
         return userService.editProfile(user);
+    }
+
+    @PutMapping("/edit/pwd")
+    public ResponseResult updatePwd(@RequestBody PwdInfo pwdInfo) {
+        return userService.updatePwd(pwdInfo);
     }
 }

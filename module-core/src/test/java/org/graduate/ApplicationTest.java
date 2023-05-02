@@ -8,6 +8,7 @@ import org.graduate.mapper.RoleMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class ApplicationTest {
     @Autowired
     private DemandMapper demandMapper;
 
+
     @Test
     public void testDemanDelete() {
         LambdaQueryWrapper<Demand> wrapper = new LambdaQueryWrapper<>();
@@ -43,7 +45,11 @@ public class ApplicationTest {
 
     @Test
     public void testPasswordEncoder() {
-//        System.out.println(passwordEncoder.encode("123456"));
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encode = "{bcrypt}$2a$10$6S2.zkjO8Oqa9UmV8tQjs.vzCmxiAnnIff6sQKwVrFBRtUS0yLOhi";
+        System.out.println(encode.indexOf("}"));
+        boolean matches = passwordEncoder.matches("123456", encode.substring(encode.indexOf("}") + 1));
+        System.out.println(matches);
     }
 
     /**

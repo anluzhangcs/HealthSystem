@@ -4,6 +4,11 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+#  mail:
+#    host: smtp.qq.com
+#    username: 2094244544@qq.com
+#    password:
+#    properties:
 
 mybatis-plus:
   global-config:
@@ -16,3 +21,4 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
+

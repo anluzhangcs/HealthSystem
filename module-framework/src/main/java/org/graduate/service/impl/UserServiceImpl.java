@@ -3,11 +3,14 @@ package org.graduate.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.graduate.domain.LoginUser;
+import org.graduate.domain.PwdInfo;
 import org.graduate.domain.entity.Permission;
 import org.graduate.domain.entity.User;
 import org.graduate.domain.vo.RouterVo;
 import org.graduate.domain.vo.UserInfo;
 import org.graduate.domain.vo.UserVo;
+import org.graduate.enums.HttpCode;
+import org.graduate.exception.SystemException;
 import org.graduate.mapper.PermissionMapper;
 import org.graduate.mapper.UserMapper;
 import org.graduate.redis.RedisCache;
@@ -20,6 +23,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -40,17 +44,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private RedisCache redisCache;
-
     @Autowired
     private UserMapper userMapper;
-
     @Autowired
     private PermissionMapper permissionMapper;
-
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private UserDetailsServiceimpl userDetailsServiceimpl;
 
@@ -170,9 +169,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public ResponseResult changeAvatar(String url) {
-        User user = SecurityUtils.getLoginUser().getUser();
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        User user = loginUser.getUser();
         user.setAvatar(url);
         updateById(user);
+
+        //更新redis
+        loginUser.setUser(user);
+        redisCache.deleteObject("login" + user.getId());
+        redisCache.setCacheObject("login" + user.getId(), loginUser);
         return ResponseResult.ok();
     }
 
@@ -184,14 +189,47 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public ResponseResult editProfile(User user) {
-        //获取authentication
+        //
         LoginUser loginUser = SecurityUtils.getLoginUser();
         User oldUser = loginUser.getUser();
         oldUser.setNickName(user.getNickName());
         updateById(oldUser);
+        //更新redis
         loginUser.setUser(oldUser);
-        UserVo userVo = BeanCopyUtil.copyBean(oldUser, UserVo.class);
-        return ResponseResult.ok(userVo).setMessage("更新成功");
+        redisCache.deleteObject("login" + oldUser.getId());
+        redisCache.setCacheObject("login" + oldUser.getId(), loginUser);
+
+        return ResponseResult.ok().setMessage("更新成功");
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param pwdInfo
+     * @return
+     */
+    @Override
+    public ResponseResult updatePwd(PwdInfo pwdInfo) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        User user = loginUser.getUser();
+        String oldPassword = pwdInfo.getOldPassword();
+        String password = user.getPassword();
+        //{bcrypt}
+        String substring = password.substring(password.indexOf("}") + 1);
+        if (passwordEncoder.matches(oldPassword, substring)) {
+            String encode = passwordEncoder.encode(pwdInfo.getNewPassword());
+            user.setPassword("{bcrypt}" + encode);
+            updateById(user);
+        } else {
+            throw new SystemException(HttpCode.BADPASSWORD);
+        }
+
+        //更新redis
+        loginUser.setUser(user);
+        redisCache.deleteObject("login" + user.getId());
+        redisCache.setCacheObject("login" + user.getId(), loginUser);
+        return ResponseResult.ok().setMessage("更新成功");
     }
 }
 

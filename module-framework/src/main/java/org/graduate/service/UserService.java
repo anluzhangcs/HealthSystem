@@ -1,6 +1,7 @@
 package org.graduate.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.graduate.domain.PwdInfo;
 import org.graduate.domain.entity.User;
 import org.graduate.utils.ResponseResult;
 
@@ -24,5 +25,7 @@ public interface UserService extends IService<User> {
     ResponseResult changeAvatar(String url);
 
     ResponseResult editProfile(User user);
+
+    ResponseResult updatePwd(PwdInfo pwdInfo);
 }
 
