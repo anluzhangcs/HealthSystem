@@ -174,7 +174,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
         IPage<Demand> page = new Page<>(currentPage, pageSize);
         LambdaQueryWrapper<Demand> queryWrapper = new LambdaQueryWrapper<>();
         if (name != "" && Objects.nonNull(name)) {
-            queryWrapper.like(Demand::getElderName, name);
+            queryWrapper.like(Demand::getDetail, name);
         }
         queryWrapper.eq(Demand::getElderId, Long.valueOf(username));
         queryWrapper.orderByAsc(Demand::getCreateTime);

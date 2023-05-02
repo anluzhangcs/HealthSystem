@@ -20,5 +20,9 @@ public interface UserService extends IService<User> {
     ResponseResult getInfo();
 
     ResponseResult getMenuList();
+
+    ResponseResult changeAvatar(String url);
+
+    ResponseResult editProfile(User user);
 }
 

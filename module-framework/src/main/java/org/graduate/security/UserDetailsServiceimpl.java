@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @date: 2023/4/8-18:16
  * @Description
  */
-@Service
+@Service()
 public class UserDetailsServiceimpl implements UserDetailsService, UserDetailsPasswordService {
 
     @Autowired

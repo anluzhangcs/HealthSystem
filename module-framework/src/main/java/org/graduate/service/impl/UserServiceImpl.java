@@ -11,6 +11,7 @@ import org.graduate.domain.vo.UserVo;
 import org.graduate.mapper.PermissionMapper;
 import org.graduate.mapper.UserMapper;
 import org.graduate.redis.RedisCache;
+import org.graduate.security.UserDetailsServiceimpl;
 import org.graduate.service.UserService;
 import org.graduate.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private UserDetailsServiceimpl userDetailsServiceimpl;
+
 
     /**
      * 登录逻辑
@@ -86,7 +90,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Map<String, Object> map = new HashMap<>();
         UserVo userVo = BeanCopyUtil.copyBean(userInfo, UserVo.class);
         map.put("token", token);
-        map.put("user", userVo);
         ResponseResult result = ResponseResult.ok(map);
 
         return result;
@@ -115,8 +118,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public ResponseResult getInfo() {
 
-        //1.从SecurityContext中获取UserDetails
-        LoginUser loginUser = SecurityUtils.getLoginUser();
+        //从SecurityContext中获取用户
+        User user = SecurityUtils.getLoginUser().getUser();
+        //获取新的loginUser
+        LoginUser loginUser = (LoginUser) userDetailsServiceimpl.loadUserByUsername(user.getUsername());
+        //更新redis
+        redisCache.deleteObject("login" + user.getId());
+        redisCache.setCacheObject("login" + user.getId(), loginUser);
 
         //获取所对应的权限信息
         List<Permission> permissionList = loginUser.getPermissionList();
@@ -154,5 +162,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return ResponseResult.ok(routerVoList);
     }
 
+    /**
+     * 改变头像
+     *
+     * @param url
+     * @return
+     */
+    @Override
+    public ResponseResult changeAvatar(String url) {
+        User user = SecurityUtils.getLoginUser().getUser();
+        user.setAvatar(url);
+        updateById(user);
+        return ResponseResult.ok();
+    }
+
+    /**
+     * 更新基本信息
+     *
+     * @param user
+     * @return
+     */
+    @Override
+    public ResponseResult editProfile(User user) {
+        //获取authentication
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        User oldUser = loginUser.getUser();
+        oldUser.setNickName(user.getNickName());
+        updateById(oldUser);
+        loginUser.setUser(oldUser);
+        UserVo userVo = BeanCopyUtil.copyBean(oldUser, UserVo.class);
+        return ResponseResult.ok(userVo).setMessage("更新成功");
+    }
 }
 

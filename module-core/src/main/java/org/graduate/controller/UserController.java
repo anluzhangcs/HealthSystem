@@ -38,4 +38,14 @@ public class UserController {
     public ResponseResult logout() {
         return userService.logout();
     }
+
+    @PutMapping("/edit/avatar")
+    public ResponseResult changeAvatar(@RequestBody String url) {
+        return userService.changeAvatar(url);
+    }
+
+    @PutMapping("/edit/profile")
+    public ResponseResult editProfile(@RequestBody User user) {
+        return userService.editProfile(user);
+    }
 }

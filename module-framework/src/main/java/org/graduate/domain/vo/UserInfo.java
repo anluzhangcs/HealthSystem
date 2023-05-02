@@ -17,7 +17,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class UserInfo implements Serializable {
     private Long id;//用户ID
-    private String username;//用户名称
+    private String username;//用户名
     private String avatar;//头像
     private Object[] roles;//角色权限集合
+    //昵称
+    private String nickName;
+    //电话
+    private String phoneNumber;
+    //邮箱
+    private String email;
 }
