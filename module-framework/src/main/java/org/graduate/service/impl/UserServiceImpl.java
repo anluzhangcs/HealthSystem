@@ -11,6 +11,8 @@ import org.graduate.domain.vo.UserInfo;
 import org.graduate.domain.vo.UserVo;
 import org.graduate.enums.HttpCode;
 import org.graduate.exception.SystemException;
+import org.graduate.mail.MailService;
+import org.graduate.mail.verify.VerificationCodeService;
 import org.graduate.mapper.PermissionMapper;
 import org.graduate.mapper.UserMapper;
 import org.graduate.redis.RedisCache;
@@ -26,10 +28,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +56,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private AuthenticationManager authenticationManager;
     @Autowired
     private UserDetailsServiceimpl userDetailsServiceimpl;
+
+    @Autowired
+    private VerificationCodeService codeService;
+
+    @Autowired
+    private MailService mailService;
 
 
     /**
@@ -230,6 +240,56 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         redisCache.deleteObject("login" + user.getId());
         redisCache.setCacheObject("login" + user.getId(), loginUser);
         return ResponseResult.ok().setMessage("更新成功");
+    }
+
+    /**
+     * 生成邮箱验证码
+     *
+     * @param to 接受邮箱
+     * @return
+     */
+    @Override
+    public ResponseResult sendCode(String to) throws MessagingException {
+        //生成验证码
+        String code = codeService.generateVerificationCode();
+        //发送邮件
+        mailService.sendHtmlMail(to, "欢迎来到幸福敬老院", code);
+        //将code保存到redis
+        String oldCode = redisCache.getCacheObject("bindCode");
+        if (Objects.nonNull(oldCode)) {
+            redisCache.deleteObject("bindCode");
+        }
+        redisCache.setCacheObject("bindCode", code);
+        //5分钟失效
+        redisCache.expire("bindCode", 5, TimeUnit.MINUTES);
+        return ResponseResult.ok().setMessage("发送成功");
+    }
+
+    /**
+     * 绑定邮箱
+     *
+     * @param to
+     * @param code
+     * @return
+     */
+    @Override
+    public ResponseResult bindMail(String to, String code) {
+        //从redis中获取验证码
+        String serverCode = redisCache.getCacheObject("bindCode");
+
+        //
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        User user = loginUser.getUser();
+        if (Objects.nonNull(serverCode) && serverCode.equals(code)) {
+            //设置邮箱
+            user.setEmail(to);
+            updateById(user);
+            //更新redis中的loginUser
+            loginUser.setUser(user);
+            redisCache.deleteObject("login" + user.getId());
+            redisCache.setCacheObject("login" + user.getId(), loginUser);
+        }
+        return ResponseResult.ok().setMessage("绑定成功");
     }
 }
 

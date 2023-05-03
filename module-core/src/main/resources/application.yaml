@@ -4,11 +4,27 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
-#  mail:
-#    host: smtp.qq.com
-#    username: 2094244544@qq.com
-#    password:
-#    properties:
+  mail:
+    # 设置邮箱主机
+    host: smtp.qq.com
+    # 非SSL的端口
+    port: 465
+    # 默认即为smtp
+    protocol: smtp
+    # 设置用户名
+    username: 2094244544@qq.com
+    # 设置密码，该处的密码是QQ邮箱开启SMTP的授权码而非登录密码
+    password: aatevtycurjucgdf
+    # 默认即为utf8
+    default-encoding: utf-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+          starttls:
+            enable: true
 
 mybatis-plus:
   global-config:

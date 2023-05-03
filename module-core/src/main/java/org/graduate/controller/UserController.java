@@ -7,6 +7,8 @@ import org.graduate.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+
 /**
  * @author: Zhanghao
  * @date: 2023/4/8-18:02
@@ -54,4 +56,15 @@ public class UserController {
     public ResponseResult updatePwd(@RequestBody PwdInfo pwdInfo) {
         return userService.updatePwd(pwdInfo);
     }
+
+    @GetMapping("/mail/code")
+    public ResponseResult sendCode(String to) throws MessagingException {
+        return userService.sendCode(to);
+    }
+
+    @GetMapping("/mail/bind")
+    public ResponseResult bindMail(String to, String code) {
+        return userService.bindMail(to, code);
+    }
 }
+

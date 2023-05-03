@@ -5,6 +5,8 @@ import org.graduate.domain.PwdInfo;
 import org.graduate.domain.entity.User;
 import org.graduate.utils.ResponseResult;
 
+import javax.mail.MessagingException;
+
 /**
  * (User)
  *
@@ -27,5 +29,9 @@ public interface UserService extends IService<User> {
     ResponseResult editProfile(User user);
 
     ResponseResult updatePwd(PwdInfo pwdInfo);
+
+    ResponseResult sendCode(String to) throws MessagingException;
+
+    ResponseResult bindMail(String to, String code);
 }
 

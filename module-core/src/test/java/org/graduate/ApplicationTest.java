@@ -3,6 +3,7 @@ package org.graduate;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.graduate.domain.entity.Demand;
+import org.graduate.mail.MailService;
 import org.graduate.mapper.DemandMapper;
 import org.graduate.mapper.RoleMapper;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.mail.MessagingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +31,14 @@ public class ApplicationTest {
     @Autowired
     private DemandMapper demandMapper;
 
+    @Autowired
+    private MailService mailService;
+
+
+    @Test
+    public void testMail() throws MessagingException {
+        mailService.sendHtmlMail("anlu.zhangcs@outlook.com", "欢迎来到 幸福敬老院", "218126");
+    }
 
     @Test
     public void testDemanDelete() {

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>欢迎来到幸福敬老院</title>
+    <style>
+        body {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #main {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div id="main">
+    <h3>您正在进行邮箱绑定</h3>
+    您的验证码是
+    <h2><span th:text="${code}"></span><span>,有效期5分钟!</span></h2>
+</div>
+</body>
+</html>
