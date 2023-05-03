@@ -1,5 +1,6 @@
 package org.graduate.controller;
 
+import org.graduate.domain.EmailInfo;
 import org.graduate.domain.PwdInfo;
 import org.graduate.domain.entity.User;
 import org.graduate.service.UserService;
@@ -57,14 +58,19 @@ public class UserController {
         return userService.updatePwd(pwdInfo);
     }
 
-    @GetMapping("/mail/code")
+    @GetMapping("/email/code")
     public ResponseResult sendCode(String to) throws MessagingException {
         return userService.sendCode(to);
     }
 
-    @GetMapping("/mail/bind")
+    @GetMapping("/email/bind")
     public ResponseResult bindMail(String to, String code) {
         return userService.bindMail(to, code);
+    }
+
+    @PostMapping("/email/login")
+    public ResponseResult loginByEamil(@RequestBody EmailInfo emailInfo) {
+        return userService.loginByEamil(emailInfo);
     }
 }
 

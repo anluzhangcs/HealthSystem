@@ -1,6 +1,7 @@
 package org.graduate.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.graduate.domain.EmailInfo;
 import org.graduate.domain.PwdInfo;
 import org.graduate.domain.entity.User;
 import org.graduate.utils.ResponseResult;
@@ -33,5 +34,7 @@ public interface UserService extends IService<User> {
     ResponseResult sendCode(String to) throws MessagingException;
 
     ResponseResult bindMail(String to, String code);
+
+    ResponseResult loginByEamil(EmailInfo emailInfo);
 }
 

@@ -2,6 +2,7 @@ package org.graduate.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.graduate.domain.EmailInfo;
 import org.graduate.domain.LoginUser;
 import org.graduate.domain.PwdInfo;
 import org.graduate.domain.entity.Permission;
@@ -11,6 +12,7 @@ import org.graduate.domain.vo.UserInfo;
 import org.graduate.domain.vo.UserVo;
 import org.graduate.enums.HttpCode;
 import org.graduate.exception.SystemException;
+import org.graduate.mail.EmailCodeAuthenticationToken;
 import org.graduate.mail.MailService;
 import org.graduate.mail.verify.VerificationCodeService;
 import org.graduate.mapper.PermissionMapper;
@@ -290,6 +292,53 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             redisCache.setCacheObject("login" + user.getId(), loginUser);
         }
         return ResponseResult.ok().setMessage("绑定成功");
+    }
+
+    /**
+     * 邮箱登录
+     *
+     * @param emailInfo
+     * @return
+     */
+    @Override
+    public ResponseResult loginByEamil(EmailInfo emailInfo) {
+        //判断验证码
+        //从redis中获取验证码
+        String serverCode = redisCache.getCacheObject("bindCode");
+        if (Objects.isNull(serverCode) || !serverCode.equals(emailInfo.getCaptcha())) {
+            //抛出异常
+            throw new SystemException(HttpCode.BADCAPTCHA);
+        }
+
+        //1.封装认证信息
+        EmailCodeAuthenticationToken authenticationToken = new EmailCodeAuthenticationToken(emailInfo.getEmail());
+
+        //2.调用AuthenticationManager进行认证
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+        //判断是否认证通过
+        if (Objects.isNull(authentication)) {
+            throw new BadCredentialsException("邮箱未注册");
+        }
+
+        //获取UserDetails信息
+        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+        User userInfo = loginUser.getUser();
+
+
+        //将UserDetails存入到redis中
+        redisCache.setCacheObject("login" + userInfo.getId(), loginUser);
+
+        //根据用户id生成token
+        String token = JwtUtil.getJwtToken(userInfo.getId().toString(), userInfo.getUsername());
+
+        //封装返回信息
+        Map<String, Object> map = new HashMap<>();
+        UserVo userVo = BeanCopyUtil.copyBean(userInfo, UserVo.class);
+        map.put("token", token);
+        ResponseResult result = ResponseResult.ok(map);
+
+        return result;
     }
 }
 

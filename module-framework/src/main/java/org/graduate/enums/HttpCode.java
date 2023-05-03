@@ -17,7 +17,8 @@ public enum HttpCode {
     PHONENUMBER_EXIST(502, "手机号已存在"), EMAIL_EXIST(503, "邮箱已存在"),
     REQUIRE_USERNAME(504, "必需填写用户名"),
     LOGIN_ERROR(505, "用户名或密码错误"),
-    BADPASSWORD(506, "原密码不正确");
+    BADPASSWORD(506, "原密码不正确"),
+    BADCAPTCHA(507, "验证码不正确");
 
     int code;
     String msg;

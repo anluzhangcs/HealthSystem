@@ -1,5 +1,6 @@
 package org.graduate.config;
 
+import org.graduate.mail.EmailCodeAuthenticationProvider;
 import org.graduate.security.UserDetailsServiceimpl;
 import org.graduate.security.exception.AccessDeniedHandlerImpl;
 import org.graduate.security.exception.AuthenticationEntryPointImpl;
@@ -8,7 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,22 +36,53 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     @Autowired
-    private UserDetailsServiceimpl userDetailsServiceimpl;
-
-    @Autowired
     private JwtFilter jwtFilter;
 
+    @Autowired
+    private UserDetailsServiceimpl userDetailsServiceimpl;
+
+    /**
+     * 注入自定义邮箱认证provider
+     */
+    @Bean
+    public EmailCodeAuthenticationProvider emailCodeAuthenticationProvider() {
+        EmailCodeAuthenticationProvider emailCodeAuthenticationProvider = new EmailCodeAuthenticationProvider();
+        return emailCodeAuthenticationProvider;
+    }
+
+    /**
+     * 用户名密码认证provider
+     *
+     * @return
+     */
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsServiceimpl);
+        daoAuthenticationProvider.setUserDetailsPasswordService(userDetailsServiceimpl);
+        return daoAuthenticationProvider;
+    }
 
     /**
      * 注入AuthenticationManager
+     * <p>
+     * //     * @param authenticationConfiguration
      *
-     * @param authenticationConfiguration
      * @return
      * @throws Exception
      */
+//    @Bean
+//    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+//        return authenticationConfiguration.getAuthenticationManager();
+//    }
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.authenticationProvider(emailCodeAuthenticationProvider());
+//        authenticationManagerBuilder.authenticationProvider();
+        authenticationManagerBuilder.authenticationProvider(daoAuthenticationProvider());
+        return authenticationManagerBuilder.build();
     }
 
 
@@ -75,11 +108,16 @@ public class SecurityConfig {
                 //配置请求认证
                 .authorizeRequests()
                 .mvcMatchers("/happyhome/user/login").permitAll()
+                .mvcMatchers("/happyhome/user/email/login").permitAll()
+                .mvcMatchers("/happyhome/user/email/code").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(new AuthenticationEntryPointImpl())
                 .accessDeniedHandler(new AccessDeniedHandlerImpl());
+
+//        //添加provider
+//        http.authenticationProvider(emailCodeAuthenticationProvider());
 
         //配置Jwt过滤器
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

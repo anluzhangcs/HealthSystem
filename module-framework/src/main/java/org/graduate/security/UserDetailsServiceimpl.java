@@ -45,9 +45,14 @@ public class UserDetailsServiceimpl implements UserDetailsService, UserDetailsPa
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //1.根据用户名查询user
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUsername, username);
+
+
+        queryWrapper.eq(User::getUsername, username)
+                .or(userLambdaQueryWrapper -> userLambdaQueryWrapper.eq(User::getEmail, username))
+                .or(userLambdaQueryWrapper -> userLambdaQueryWrapper.eq(User::getPhoneNumber, username));
         User user = userMapper.selectOne(queryWrapper);
-        if (Objects.isNull(user)) {
+        if (Objects.isNull(user)) { //继续判断邮箱,手机号
+
             throw new UsernameNotFoundException("用户不存在");
         }
 
