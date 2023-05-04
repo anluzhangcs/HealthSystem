@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.graduate.domain.SearchModel;
 import org.graduate.domain.entity.Elder;
+import org.graduate.domain.entity.User;
 import org.graduate.mapper.ElderMapper;
+import org.graduate.mapper.UserMapper;
 import org.graduate.service.ElderService;
 import org.graduate.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class ElderServiceImpl extends ServiceImpl<ElderMapper, Elder> implements
 
     @Autowired
     private ElderMapper elderMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 根据id查找老人
@@ -47,6 +52,9 @@ public class ElderServiceImpl extends ServiceImpl<ElderMapper, Elder> implements
     @Override
     public ResponseResult deleteElder(Long id) {
         elderMapper.deleteById(id);
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername, id.toString());
+        userMapper.delete(queryWrapper);
         return ResponseResult.ok().setMessage("删除成功");
     }
 
@@ -71,6 +79,14 @@ public class ElderServiceImpl extends ServiceImpl<ElderMapper, Elder> implements
     @Override
     public ResponseResult addElder(Elder elder) {
         elderMapper.insert(elder);
+        //注册到user表中
+        User user = new User();
+        user.setUsername(elder.getId().toString());
+        user.setNickName(elder.getName());
+        user.setPhoneNumber(elder.getPhoneNumber());
+        user.setRoleId(5L);
+        userMapper.insert(user);
+
         return ResponseResult.ok().setMessage("添加成功");
     }
 

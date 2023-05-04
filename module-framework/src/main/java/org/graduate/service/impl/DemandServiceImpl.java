@@ -69,7 +69,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
             demand.setElderId(elder.getId());
             demand.setElderName(elder.getName());
         }
-
+        
         demandMapper.insert(demand);
         return ResponseResult.ok().setMessage("提交成功");
     }
@@ -93,6 +93,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
         //3.封装Page和querywrapper
         IPage<Demand> page = new Page<>(currentPage, pageSize);
         LambdaQueryWrapper<Demand> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByAsc(Demand::getStatus);
         if (name != "" && Objects.nonNull(name)) {
             queryWrapper.like(Demand::getDetail, name);
         }
@@ -115,7 +116,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
     public ResponseResult processDemand(Demand demand) {
         LambdaQueryWrapper<Demand> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Demand::getId, demand.getId());
-        demand.setStatus(1);
+        demand.setStatus(2);
         demandMapper.update(demand, wrapper);
         return ResponseResult.ok().setMessage("更新状态成功");
     }
@@ -130,7 +131,7 @@ public class DemandServiceImpl extends ServiceImpl<DemandMapper, Demand> impleme
     public ResponseResult finishDemand(Demand demand) {
         LambdaQueryWrapper<Demand> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Demand::getId, demand.getId());
-        demand.setStatus(1);
+        demand.setStatus(3);
         demandMapper.update(demand, wrapper);
         return ResponseResult.ok().setMessage("完成");
     }

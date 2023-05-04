@@ -3,8 +3,11 @@ package org.graduate;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.graduate.domain.entity.Demand;
+import org.graduate.domain.entity.Doctor;
 import org.graduate.mail.MailService;
 import org.graduate.mapper.DemandMapper;
+import org.graduate.mapper.DoctorMapper;
+import org.graduate.mapper.ElderMapper;
 import org.graduate.mapper.RoleMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.mail.MessagingException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +38,24 @@ public class ApplicationTest {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private ElderMapper elderMapper;
+
+    @Autowired
+    private DoctorMapper doctorMapper;
+
+    @Test
+    public void testInsertMp() {
+        Doctor doctor = new Doctor();
+        doctor.setAge(56);
+        doctor.setEnterDate(LocalDate.now());
+        doctor.setGender("男");
+        doctor.setName("ad");
+        doctor.setPhoneNumber("12345");
+        doctorMapper.insert(doctor);
+        System.out.println(doctor.getId());
+        
+    }
 
     @Test
     public void testMail() throws MessagingException {

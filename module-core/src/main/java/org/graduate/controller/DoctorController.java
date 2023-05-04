@@ -46,7 +46,7 @@ public class DoctorController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('elder:demand')")
+    @PreAuthorize("hasAnyAuthority('elder:demand','elder:edit','elder:add')")
     public ResponseResult getAllDoctors() throws Exception {
         return doctorService.getAllDoctors();
     }

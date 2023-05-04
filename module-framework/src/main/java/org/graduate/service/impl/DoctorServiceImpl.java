@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.graduate.domain.SearchModel;
 import org.graduate.domain.entity.Doctor;
+import org.graduate.domain.entity.User;
 import org.graduate.domain.vo.DoctorVo;
 import org.graduate.mapper.DoctorMapper;
+import org.graduate.mapper.UserMapper;
 import org.graduate.service.DoctorService;
 import org.graduate.utils.BeanCopyUtil;
 import org.graduate.utils.ResponseResult;
@@ -29,6 +31,9 @@ public class DoctorServiceImpl extends ServiceImpl<DoctorMapper, Doctor> impleme
 
     @Autowired
     private DoctorMapper doctorMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 查找
@@ -66,6 +71,12 @@ public class DoctorServiceImpl extends ServiceImpl<DoctorMapper, Doctor> impleme
     @Override
     public ResponseResult addDoctor(Doctor doctor) {
         doctorMapper.insert(doctor);
+        User user = new User();
+        user.setUsername(doctor.getId().toString());
+        user.setNickName(doctor.getName());
+        user.setPhoneNumber(doctor.getPhoneNumber());
+        user.setRoleId(3L);
+        userMapper.insert(user);
         return ResponseResult.ok().setMessage("添加成功");
     }
 
@@ -90,6 +101,9 @@ public class DoctorServiceImpl extends ServiceImpl<DoctorMapper, Doctor> impleme
     @Override
     public ResponseResult deleteDoctor(Long id) {
         doctorMapper.deleteById(id);
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername, id.toString());
+        userMapper.delete(queryWrapper);
         return ResponseResult.ok().setMessage("删除成功");
     }
 

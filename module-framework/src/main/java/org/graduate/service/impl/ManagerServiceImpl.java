@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.graduate.domain.SearchModel;
 import org.graduate.domain.entity.Manager;
+import org.graduate.domain.entity.User;
 import org.graduate.mapper.ManagerMapper;
+import org.graduate.mapper.UserMapper;
 import org.graduate.service.ManagerService;
 import org.graduate.utils.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class ManagerServiceImpl extends ServiceImpl<ManagerMapper, Manager> impl
 
     @Autowired
     private ManagerMapper managerMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 查找
@@ -62,6 +67,12 @@ public class ManagerServiceImpl extends ServiceImpl<ManagerMapper, Manager> impl
     @Override
     public ResponseResult addManager(Manager manager) {
         managerMapper.insert(manager);
+        User user = new User();
+        user.setUsername(manager.getId().toString());
+        user.setNickName(manager.getName());
+        user.setPhoneNumber(manager.getPhoneNumber());
+        user.setRoleId(2L);
+        userMapper.insert(user);
         return ResponseResult.ok().setMessage("添加成功");
     }
 
@@ -86,6 +97,9 @@ public class ManagerServiceImpl extends ServiceImpl<ManagerMapper, Manager> impl
     @Override
     public ResponseResult deleteManager(Long id) {
         managerMapper.deleteById(id);
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername, id.toString());
+        userMapper.delete(queryWrapper);
         return ResponseResult.ok().setMessage("删除成功");
     }
 }
